@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STL Explainer – Surface Triangles, No Units, Shape ≠ Print</title>
+  <style>
+    :root {
+      --bg: #0f172a;      /* slate-900 */
+      --panel: #111827;   /* gray-900 */
+      --ink: #e5e7eb;     /* gray-200 */
+      --muted: #9ca3af;   /* gray-400 */
+      --accent: #22d3ee;  /* cyan-400 */
+      --accent2:#60a5fa;  /* blue-400 */
+      --ok: #34d399;      /* green-400 */
+      --warn:#f59e0b;     /* amber-500 */
+      --bad:#ef4444;      /* red-500 */
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      display: grid; grid-template-rows: auto 1fr auto; gap: 12px;
+    }
+    header {
+      padding: 14px 16px; background: linear-gradient(90deg, #0b1220, #0f172a 40%);
+      border-bottom: 1px solid #1f2937; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    }
+    header h1 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: .2px; }
+    header .bullets { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip { padding: 6px 10px; border-radius: 999px; background: #111827; border: 1px solid #1f2937; color: var(--muted); font-size: 12px; }
+
+    main { display: grid; grid-template-columns: 1fr 360px; gap: 12px; padding: 0 12px 12px; }
+    #stage { position: relative; border: 1px solid #1f2937; border-radius: 12px; background: radial-gradient(1200px 600px at 50% 0%, #111827, #0b1220);
+      overflow: hidden; min-height: 560px; }
+    #overlay { position: absolute; inset: 0; pointer-events: none; padding: 10px; font-size: 12px; color: var(--muted); }
+
+    aside { background: #0b1220; border: 1px solid #1f2937; border-radius: 12px; padding: 14px; display: grid; gap: 12px; align-content: start; }
+    aside h2 { font-size: 14px; margin: 0 0 6px; color: var(--ink); }
+    .row { display: grid; gap: 8px; }
+    label { font-size: 12px; color: var(--muted); }
+    input[type="range"] { width: 100%; }
+    button { background: #111827; border: 1px solid #1f2937; color: var(--ink); padding: 8px 10px; border-radius: 10px; font-size: 13px; cursor: pointer; }
+    button:hover { border-color: #374151; }
+    button.active { outline: 2px solid var(--accent); }
+    .note { font-size: 12px; color: var(--muted); line-height: 1.4; }
+    .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; background: #0b1220; border: 1px solid #1f2937; padding: 0 6px; border-radius: 6px; color: var(--ink); font-size: 11px; }
+
+    .legend { display: flex; gap: 10px; align-items: center; position: absolute; left: 12px; bottom: 12px; background: rgba(15, 23, 42, .7); padding: 8px 10px; border-radius: 10px; border: 1px solid #1f2937; }
+    .swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+    .sw-solid { background: #93c5fd; }
+    .sw-edges { background: #22d3ee; }
+    .sw-tris { background: #34d399; }
+
+    footer { padding: 8px 16px; color: var(--muted); font-size: 12px; border-top: 1px solid #1f2937; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+    a { color: var(--accent2); text-decoration: none; }
+
+    /* Test output styles */
+    details.tests { background: #0b1220; border: 1px solid #1f2937; border-radius: 10px; padding: 8px 10px; }
+    .test-pass { color: var(--ok); }
+    .test-fail { color: var(--bad); }
+    .test-run { display: inline-flex; align-items: center; gap: 8px; }
+  </style>
+  <!-- Import map fixes bare module specifiers in examples modules -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/examples/jsm/controls/OrbitControls.js": "https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js",
+      "three/examples/jsm/helpers/VertexNormalsHelper.js": "https://unpkg.com/three@0.160.0/examples/jsm/helpers/VertexNormalsHelper.js"
+    }
+  }
+  </script>
+</head>
+<body>
+  <header>
+    <h1>STL Explainer – “Surface Triangles, No Units, Shape ≠ Print”</h1>
+    <div class="bullets">
+      <span class="chip"><b>STL</b> = <i>Stereolithography</i></span>
+      <span class="chip">Stores <b>surface only</b> (no color/units/material)</span>
+      <span class="chip">Made of <b>triangles</b></span>
+      <span class="chip">Describes <b>shape</b> – not toolpaths</span>
+    </div>
+  </header>
+
+  <main>
+    <section id="stage">
+      <div id="overlay"></div>
+      <!-- three.js canvas injects here -->
+      <div class="legend">
+        <span class="swatch sw-solid"></span><span class="note">Solid surface</span>
+        <span class="swatch sw-edges"></span><span class="note">Triangle edges</span>
+        <span class="swatch sw-tris"></span><span class="note">Triangle normals</span>
+      </div>
+    </section>
+
+    <aside>
+      <div>
+        <h2>1) Choose a shape (as if it were exported to STL)</h2>
+        <div class="row">
+          <div style="display:flex; gap:8px; flex-wrap: wrap;">
+            <button id="shape-sphere">Sphere</button>
+            <button id="shape-bunny">Bunny (hi‑tri)</button>
+            <button id="shape-cube">Cube (low‑tri)</button>
+          </div>
+          <p class="note">We generate a mesh and then triangulate it, like an STL export would. Real STL files are just a list of triangles.</p>
+        </div>
+      </div>
+
+      <div>
+        <h2>2) Visualize the <em>surface‑only</em> triangles</h2>
+        <div class="row">
+          <div style="display:flex; gap:8px; flex-wrap: wrap;">
+            <button id="toggle-solid" class="active">Solid</button>
+            <button id="toggle-edges" class="active">Edges</button>
+            <button id="toggle-normals">Face normals</button>
+            <button id="toggle-clip">Show slice cut</button>
+          </div>
+          <div class="row">
+            <label>Triangle density (STL resolution)</label>
+            <input id="density" type="range" min="1" max="6" value="3" />
+          </div>
+          <p class="note">Notice there’s nothing inside the shell — STL stores only the <b>outer surface</b>. The number of triangles controls smoothness and file size.</p>
+        </div>
+      </div>
+
+      <div>
+        <h2>3) Units? Not in STL.</h2>
+        <div class="row">
+          <label>Scale <span class="note">(pretend 1 unit = mm ↔ inches)</span></label>
+          <input id="scale" type="range" min="0.25" max="4" step="0.25" value="1" />
+          <p class="note">Scaling demonstrates that STL has <b>no units</b>. Your slicer decides whether “1” means 1&nbsp;mm or 1&nbsp;inch.</p>
+        </div>
+      </div>
+
+      <div>
+        <h2>4) Shape ≠ Print Instructions</h2>
+        <div class="row">
+          <button id="toggle-toy-slices">Toggle pseudo‑slices</button>
+          <p class="note">STL doesn’t include layer height, speed, or paths. The <span class="kbd">slicer</span> turns shape → toolpaths (G‑code). The dashed rings are a toy visualization of that separate step.</p>
+        </div>
+      </div>
+
+      <div>
+        <h2>Stats</h2>
+        <div id="stats" class="note">Triangles: –<br/>Vertices: –<br/>Back‑face view: off</div>
+      </div>
+
+      <div>
+        <h2>Self‑tests</h2>
+        <div class="row">
+          <div class="test-run">
+            <button id="run-tests">Run self‑tests</button>
+            <span id="test-summary" class="note">(basic sanity checks)</span>
+          </div>
+          <details class="tests">
+            <summary>Show test details</summary>
+            <div id="tests"></div>
+          </details>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <footer>
+    <div>
+      Made for classroom demos. Rotate with <span class="kbd">drag</span>, pan with <span class="kbd">right‑drag</span>, zoom with <span class="kbd">wheel</span>. Reset view: <span class="kbd">R</span>. Toggle back‑face view (to see the hollow shell): <span class="kbd">B</span>.
+    </div>
+    <div>
+      <a id="dl" href="#">Download screenshot</a>
+    </div>
+  </footer>
+
+  <script type="module">
+    import * as THREE from "three";
+    import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+    import { VertexNormalsHelper } from "three/examples/jsm/helpers/VertexNormalsHelper.js";
+
+    // Utility: download a screenshot
+    const dl = document.getElementById('dl');
+
+    // Simple procedural “bunny” using an icosahedron with high subdivision — no external files.
+    function makeBunny(level=5) { return new THREE.IcosahedronGeometry(1, level); }
+    function makeSphere(level=3) { return new THREE.IcosahedronGeometry(1, level); }
+    function makeCube(level=1) {
+      // Triangulated cube by subdividing faces
+      const geo = new THREE.BoxGeometry(1.75, 1.75, 1.75, level*2, level*2, level*2);
+      return geo.toNonIndexed();
+    }
+
+    // Scene setup
+    const stage = document.getElementById('stage');
+    const overlay = document.getElementById('overlay');
+    const statsEl = document.getElementById('stats');
+
+    const scene = new THREE.Scene();
+    scene.background = null;
+
+    const camera = new THREE.PerspectiveCamera(55, stage.clientWidth / stage.clientHeight, 0.01, 100);
+    camera.position.set(2.5, 1.8, 2.5);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(stage.clientWidth, stage.clientHeight);
+    renderer.domElement.style.display = 'block';
+    stage.appendChild(renderer.domElement);
+
+    dl.onclick = (e)=>{
+      e.preventDefault();
+      const url = renderer.domElement.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.href = url; a.download = 'stl-explainer.png'; a.click();
+    };
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+
+    // Lights
+    const hemi = new THREE.HemisphereLight(0xffffff, 0x223344, 0.8);
+    scene.add(hemi);
+    const key = new THREE.DirectionalLight(0xffffff, 0.8); key.position.set(3,4,2); scene.add(key);
+
+    // Materials
+    const matSolid = new THREE.MeshStandardMaterial({ color: 0x93c5fd, metalness: 0.05, roughness: 0.7, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
+    const matEdges = new THREE.LineBasicMaterial({ color: 0x22d3ee, linewidth: 1 });
+
+    // Groups
+    const root = new THREE.Group();
+    scene.add(root);
+
+    // Clipping plane for “surface only” demo
+    const clipPlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), 0); // horizontal plane moving up/down
+    renderer.clippingPlanes = []; // off by default
+
+    // Pseudo-slice rings group
+    const sliceGroup = new THREE.Group();
+    root.add(sliceGroup);
+
+    let mesh=null, edges=null, normalsHelper=null;
+
+    function setGeometry(geo) {
+      // Ensure triangles (STL is triangles only)
+      const g = geo.index ? geo.toNonIndexed() : geo.clone();
+      g.computeVertexNormals();
+
+      // dispose old
+      if (mesh) { root.remove(mesh); mesh.geometry.dispose(); }
+      if (edges) { root.remove(edges); edges.geometry.dispose(); }
+      if (normalsHelper) { root.remove(normalsHelper); normalsHelper.geometry.dispose(); }
+
+      mesh = new THREE.Mesh(g, matSolid);
+      root.add(mesh);
+
+      const egeo = new THREE.EdgesGeometry(g, 1e-3);
+      edges = new THREE.LineSegments(egeo, matEdges);
+      root.add(edges);
+
+      normalsHelper = new VertexNormalsHelper(mesh, 0.06, 0x34d399);
+      normalsHelper.visible = false;
+      root.add(normalsHelper);
+
+      updateStats();
+      buildPseudoSlices();
+    }
+
+    function triangleCount() {
+      const g = mesh.geometry;
+      return (g.attributes.position.count / 3) | 0;
+    }
+
+    function updateStats() {
+      const g = mesh.geometry;
+      statsEl.innerHTML = `Triangles: ${triangleCount().toLocaleString()}<br/>Vertices: ${g.attributes.position.count.toLocaleString()}<br/>Back‑face view: ${matSolid.side === THREE.BackSide ? 'on' : 'off'}`;
+    }
+
+    function buildPseudoSlices(layerHeight=0.2) {
+      // Clear and rebuild dashed rings to illustrate that slicing is a separate step
+      sliceGroup.clear();
+      if (!showSlices) return;
+
+      const box = new THREE.Box3().setFromObject(mesh);
+      const minY = box.min.y, maxY = box.max.y;
+      const layers = Math.ceil((maxY - minY) / layerHeight);
+
+      for (let i=0; i<=layers; i++) {
+        const y = minY + i * layerHeight;
+        // Intersect with a plane by sampling many radial points (stylized)
+        const ring = new THREE.EllipseCurve(0, 0, 1.05, 1.05, 0, Math.PI*2, false, 0);
+        const points = ring.getSpacedPoints(80).map(p => new THREE.Vector3(p.x, 0, p.y));
+        const geom = new THREE.BufferGeometry().setFromPoints(points);
+        const mat = new THREE.LineDashedMaterial({ color: 0xffffff, dashSize: 0.06, gapSize: 0.04, transparent: true, opacity: 0.45 });
+        const line = new THREE.Line(geom, mat);
+        line.position.y = y;
+        line.computeLineDistances();
+        sliceGroup.add(line);
+      }
+    }
+
+    // UI wiring
+    function setActive(btn, active) { btn.classList.toggle('active', !!active); }
+
+    const btnSphere = document.getElementById('shape-sphere');
+    const btnBunny  = document.getElementById('shape-bunny');
+    const btnCube   = document.getElementById('shape-cube');
+
+    const btnSolid  = document.getElementById('toggle-solid');
+    const btnEdges  = document.getElementById('toggle-edges');
+    const btnNormals= document.getElementById('toggle-normals');
+    const btnClip   = document.getElementById('toggle-clip');
+    const density   = document.getElementById('density');
+    const scaleEl   = document.getElementById('scale');
+    const btnSlices = document.getElementById('toggle-toy-slices');
+
+    const btnRunTests = document.getElementById('run-tests');
+    const testsEl = document.getElementById('tests');
+    const testSummary = document.getElementById('test-summary');
+
+    let currentShape = 'sphere';
+    let showSolid = true, showEdges = true, showNormals = false, showClip = false, showSlices = false;
+
+    function rebuild() {
+      const lvl = parseInt(density.value, 10);
+      let geo;
+      if (currentShape === 'sphere') geo = makeSphere(lvl+1);
+      else if (currentShape === 'bunny') geo = makeBunny(lvl+2);
+      else geo = makeCube(lvl);
+      setGeometry(geo);
+      const s = parseFloat(scaleEl.value);
+      root.scale.setScalar(s);
+      applyVisibility();
+    }
+
+    function applyVisibility() {
+      mesh.visible = showSolid;
+      edges.visible = showEdges;
+      normalsHelper.visible = showNormals;
+      renderer.clippingPlanes = showClip ? [clipPlane] : [];
+      buildPseudoSlices();
+      updateStats();
+    }
+
+    btnSphere.onclick = () => { currentShape = 'sphere'; setActive(btnSphere,true); setActive(btnBunny,false); setActive(btnCube,false); rebuild(); };
+    btnBunny.onclick  = () => { currentShape = 'bunny';  setActive(btnSphere,false); setActive(btnBunny,true); setActive(btnCube,false); rebuild(); };
+    btnCube.onclick   = () => { currentShape = 'cube';   setActive(btnSphere,false); setActive(btnBunny,false); setActive(btnCube,true); rebuild(); };
+
+    btnSolid.onclick  = () => { showSolid = !showSolid; setActive(btnSolid, showSolid); applyVisibility(); };
+    btnEdges.onclick  = () => { showEdges = !showEdges; setActive(btnEdges, showEdges); applyVisibility(); };
+    btnNormals.onclick= () => { showNormals = !showNormals; setActive(btnNormals, showNormals); applyVisibility(); };
+    btnClip.onclick   = () => { showClip = !showClip; setActive(btnClip, showClip); applyVisibility(); };
+    btnSlices.onclick = () => { showSlices = !showSlices; setActive(btnSlices, showSlices); applyVisibility(); };
+
+    density.oninput = rebuild;
+    scaleEl.oninput = () => { const s = parseFloat(scaleEl.value); root.scale.setScalar(s); };
+
+    // Keyboard helpers
+    window.addEventListener('keydown', (e)=>{
+      if (e.key.toLowerCase()==='r') { controls.reset(); }
+      if (e.key.toLowerCase()==='b') {
+        matSolid.side = (matSolid.side === THREE.FrontSide) ? THREE.BackSide : THREE.FrontSide;
+        matSolid.needsUpdate = true; updateStats();
+      }
+    });
+
+    // Animate + overlay
+    const clock = new THREE.Clock();
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      const t = clock.getElapsedTime();
+      overlay.innerHTML = `Triangles: <b>${triangleCount().toLocaleString()}</b> \u2022 Scale: <b>${scaleEl.value}×</b> \u2022 Density: <b>${density.value}</b>`;
+      renderer.render(scene, camera);
+    }
+
+    // Resize
+    const resize = () => {
+      const w = stage.clientWidth, h = Math.max(420, stage.clientHeight);
+      camera.aspect = w/h; camera.updateProjectionMatrix();
+      renderer.setSize(w,h, false);
+    };
+    window.addEventListener('resize', resize);
+
+    // --- Minimal self-tests (acts as "test cases") ---
+    function assert(name, cond) {
+      const div = document.createElement('div');
+      div.className = cond ? 'test-pass' : 'test-fail';
+      div.textContent = (cond ? '✔ ' : '✘ ') + name;
+      testsEl.appendChild(div);
+      return !!cond;
+    }
+
+    function clearTests(){ testsEl.innerHTML=''; }
+
+    function runTests() {
+      clearTests();
+      let passed = 0, total = 0;
+      function t(name, cond){ total++; if(assert(name, cond)) passed++; }
+
+      // Module load & scene basics
+      t('THREE loaded', !!THREE && !!THREE.Scene);
+      t('OrbitControls available', !!OrbitControls);
+
+      // Setup created
+      t('Renderer attached', !!renderer && !!renderer.domElement && renderer.domElement.parentElement === stage);
+      t('Camera initialized', !!camera && camera.isCamera);
+
+      // Build geometry and verify triangle math
+      rebuild();
+      t('Mesh exists after rebuild()', !!mesh && mesh.isMesh);
+      t('Edges exist after rebuild()', !!edges && edges.isLineSegments);
+      t('Triangle count > 0', triangleCount() > 0);
+
+      // Toggles change visibility
+      const before = mesh.visible;
+      btnSolid.click();
+      t('Solid toggle flips visibility', mesh.visible !== before);
+      btnSolid.click(); // restore
+
+      // Scale affects root
+      const sBefore = root.scale.x; scaleEl.value = parseFloat(scaleEl.value) + 0.25; scaleEl.dispatchEvent(new Event('input'));
+      t('Scale slider changes root scale', root.scale.x !== sBefore);
+
+      testSummary.textContent = `${passed}/${total} tests passed`;
+    }
+
+    btnRunTests.onclick = runTests;
+
+    // Initial
+    setActive(btnSphere,true); setActive(btnEdges,true); setActive(btnSolid,true);
+    rebuild();
+    resize();
+    animate();
+
+    // Auto-run tests once on load for sanity
+    setTimeout(runTests, 0);
+  </script>
+</body>
+</html>
