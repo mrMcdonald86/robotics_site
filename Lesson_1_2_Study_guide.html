@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.5;
+    color: #1a1a2e;
+    max-width: 750px;
+    margin: 0 auto;
+    padding: 32px 40px;
+    background: #fff;
+  }
+
+  /* ── Title ── */
+  .title-block {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+    color: #fff;
+    border-radius: 10px;
+    padding: 24px 28px 20px;
+    margin-bottom: 28px;
+  }
+  .title-block h1 {
+    margin: 0 0 4px;
+    font-size: 18pt;
+    letter-spacing: 0.5px;
+  }
+  .title-block p {
+    margin: 0;
+    font-size: 10pt;
+    opacity: 0.8;
+  }
+
+  /* ── Big idea boxes ── */
+  .big-idea {
+    background: #e8f4fd;
+    border-left: 4px solid #1976d2;
+    border-radius: 0 6px 6px 0;
+    padding: 10px 14px;
+    margin: 8px 0 14px;
+    font-size: 10pt;
+    color: #0d47a1;
+    font-weight: 600;
+  }
+
+  /* ── Section headings ── */
+  h2 {
+    font-size: 13pt;
+    color: #fff;
+    background: #0f3460;
+    padding: 6px 12px;
+    border-radius: 5px;
+    margin: 22px 0 10px;
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 10.5pt;
+    color: #0f3460;
+    border-bottom: 2px solid #e0e7ff;
+    padding-bottom: 2px;
+    margin: 14px 0 6px;
+    page-break-after: avoid;
+  }
+
+  /* ── Tables ── */
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 8px 0 12px;
+    font-size: 9.5pt;
+    page-break-inside: avoid;
+  }
+  th {
+    background: #1a1a2e;
+    color: #fff;
+    text-align: left;
+    padding: 5px 10px;
+  }
+  td {
+    padding: 4px 10px;
+    border-bottom: 1px solid #e8eaf6;
+  }
+  tr:nth-child(even) td { background: #f5f7ff; }
+  td code, th code { font-size: 9pt; }
+
+  /* ── Code blocks ── */
+  pre {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 9pt;
+    overflow-x: auto;
+    margin: 6px 0 10px;
+    page-break-inside: avoid;
+    line-height: 1.4;
+  }
+  code {
+    background: #e8eaf6;
+    color: #1a237e;
+    border-radius: 3px;
+    padding: 1px 4px;
+    font-size: 9pt;
+    font-family: 'Consolas', 'Courier New', monospace;
+  }
+  pre code {
+    background: none;
+    color: inherit;
+    padding: 0;
+  }
+
+  /* ── Highlight colors in code ── */
+  .kw { color: #89b4fa; }  /* keyword  */
+  .fn { color: #a6e3a1; }  /* function */
+  .cm { color: #6c7086; }  /* comment  */
+  .nm { color: #fab387; }  /* number   */
+
+  /* ── Key point pill ── */
+  .key {
+    background: #fff3e0;
+    border: 1px solid #ffb300;
+    border-radius: 20px;
+    display: inline-block;
+    padding: 2px 12px;
+    font-size: 9pt;
+    color: #e65100;
+    margin: 4px 0 10px;
+  }
+
+  /* ── Two-column layout ── */
+  .cols2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 8px 0;
+  }
+  .card {
+    background: #f8f9ff;
+    border: 1px solid #c5cae9;
+    border-radius: 6px;
+    padding: 10px 12px;
+  }
+  .card h4 { margin: 0 0 6px; font-size: 10pt; color: #3949ab; }
+  .card p, .card li { font-size: 9.5pt; margin: 3px 0; }
+  .card ul { padding-left: 16px; margin: 4px 0; }
+
+  /* ── Practice blocks ── */
+  .practice {
+    background: #f3f4f6;
+    border-left: 3px solid #43a047;
+    border-radius: 0 6px 6px 0;
+    padding: 8px 12px;
+    margin: 6px 0;
+    font-size: 9.5pt;
+    page-break-inside: avoid;
+  }
+  .practice strong { color: #2e7d32; }
+  .answer {
+    background: #e8f5e9;
+    border-radius: 4px;
+    padding: 3px 8px;
+    margin-top: 4px;
+    font-size: 9pt;
+    color: #1b5e20;
+  }
+
+  /* ── Checklist ── */
+  .checklist { columns: 2; column-gap: 20px; }
+  .checklist li { font-size: 9.5pt; margin: 3px 0; break-inside: avoid; }
+
+  /* ── Print helpers ── */
+  @media print {
+    body { padding: 0; }
+    .title-block { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    h2 { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    pre { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ TITLE ══════════════════════════════════════════════════════════ -->
+<div class="title-block">
+  <h1>Study Guide: PWM, LEDs &amp; DC Motors</h1>
+  <p>Lessons 1–2 Checkpoint Prep &nbsp;|&nbsp; Lesson_1_2_Study_guide</p>
+</div>
+
+<div class="big-idea">Arduino programs read inputs, make decisions, remember state, and control outputs.</div>
+<div class="big-idea">PWM can control output strength, but different hardware needs different wiring.</div>
+
+<!-- ══ 1. ARDUINO BASICS ══════════════════════════════════════════════ -->
+<h2>1. Arduino Code Basics</h2>
+
+<div class="cols2">
+  <div class="card">
+    <h4>Sketch Structure</h4>
+    <pre><code><span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="cm">// Runs once at start</span>
+  <span class="cm">// set pin modes, Serial, initial state</span>
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="cm">// Runs repeatedly</span>
+  <span class="cm">// read, decide, act, report</span>
+}</code></pre>
+  </div>
+  <div class="card">
+    <h4>Pin Assignment &amp; Mode</h4>
+    <pre><code><span class="cm">// Assignment — names only</span>
+<span class="kw">const int</span> ledPin   = <span class="nm">9</span>;
+<span class="kw">const int</span> potPin   = A0;
+<span class="kw">const int</span> enablePin = <span class="nm">5</span>;
+
+<span class="cm">// Mode — configures the pin</span>
+<span class="fn">pinMode</span>(ledPin,    OUTPUT);
+<span class="fn">pinMode</span>(buttonPin, INPUT_PULLUP);</code></pre>
+  </div>
+</div>
+
+<table>
+  <tr><th>Concept</th><th>What It Does</th><th>Example</th></tr>
+  <tr><td><code>const int name = pin;</code></td><td>Gives a pin number a readable name</td><td><code>const int ledPin = 9;</code></td></tr>
+  <tr><td><code>pinMode(pin, OUTPUT)</code></td><td>Configures pin to send signals out</td><td>LED, L293D enable, L293D inputs</td></tr>
+  <tr><td><code>pinMode(pin, INPUT_PULLUP)</code></td><td>Configures pin to read a button</td><td>Forward/reverse/on/off buttons</td></tr>
+  <tr><td><code>Serial.begin(9600)</code></td><td>Starts Serial Monitor in setup()</td><td>—</td></tr>
+  <tr><td><code>Serial.println(val)</code></td><td>Prints value + new line</td><td><code>Serial.println(motorPWM);</code></td></tr>
+</table>
+
+<span class="key">Assignment names the pin. pinMode() configures its job.</span>
+
+<!-- ══ 2. READING INPUTS ═══════════════════════════════════════════════ -->
+<h2>2. Reading Inputs</h2>
+
+<div class="cols2">
+  <div class="card">
+    <h4>Digital Input — Button</h4>
+    <pre><code><span class="kw">int</span> btnState = <span class="fn">digitalRead</span>(buttonPin);</code></pre>
+    <table>
+      <tr><th>Button</th><th>Reads</th></tr>
+      <tr><td>Pressed</td><td><code>LOW</code></td></tr>
+      <tr><td>Released</td><td><code>HIGH</code></td></tr>
+    </table>
+    <p style="font-size:9pt;color:#555;">Uses <code>INPUT_PULLUP</code> → pressed = LOW</p>
+  </div>
+  <div class="card">
+    <h4>Analog Input — Potentiometer</h4>
+    <pre><code><span class="kw">int</span> potValue = <span class="fn">analogRead</span>(potPin);</code></pre>
+    <table>
+      <tr><th>Position</th><th>Value</th></tr>
+      <tr><td>One end</td><td><code>0</code></td></tr>
+      <tr><td>Middle</td><td><code>512</code></td></tr>
+      <tr><td>Other end</td><td><code>1023</code></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ══ 3. CONTROLLING OUTPUTS ═════════════════════════════════════════ -->
+<h2>3. Controlling Outputs</h2>
+
+<div class="cols2">
+  <div class="card">
+    <h4>digitalWrite() — On/Off</h4>
+    <pre><code><span class="fn">digitalWrite</span>(ledPin, HIGH); <span class="cm">// on</span>
+<span class="fn">digitalWrite</span>(ledPin, LOW);  <span class="cm">// off</span>
+<span class="cm">// Also used for L293D direction pins</span>
+<span class="fn">digitalWrite</span>(input1Pin, HIGH);
+<span class="fn">digitalWrite</span>(input2Pin, LOW);</code></pre>
+  </div>
+  <div class="card">
+    <h4>analogWrite() — PWM Strength</h4>
+    <pre><code><span class="cm">// Range: 0–255</span>
+<span class="fn">analogWrite</span>(ledPin,    ledValue);
+<span class="fn">analogWrite</span>(enablePin, motorPWM);</code></pre>
+    <table>
+      <tr><th>Value</th><th>LED</th><th>Motor Enable</th></tr>
+      <tr><td><code>0</code></td><td>Off</td><td>Stopped</td></tr>
+      <tr><td><code>128</code></td><td>Half bright</td><td>Med. speed</td></tr>
+      <tr><td><code>255</code></td><td>Full bright</td><td>Full speed</td></tr>
+    </table>
+  </div>
+</div>
+
+<span class="key">analogRead() → 0–1023 &nbsp;|&nbsp; analogWrite() → 0–255</span>
+
+<!-- ══ 4. SCALING VALUES ═══════════════════════════════════════════════ -->
+<h2>4. Scaling Potentiometer → PWM</h2>
+
+<pre><code><span class="cm">// Pattern: pot value → ratio → PWM value</span>
+<span class="kw">float</span> potRatio = (<span class="kw">float</span>)potValue / potMax;  <span class="cm">// cast forces decimal division</span>
+<span class="kw">int</span>   motorPWM = <span class="fn">round</span>(potRatio * pwmMax);  <span class="cm">// scale to 0–255</span></code></pre>
+
+<table>
+  <tr><th>Pot Value</th><th>Ratio</th><th>PWM</th></tr>
+  <tr><td><code>0</code></td><td><code>0.00</code></td><td><code>0</code></td></tr>
+  <tr><td><code>512</code></td><td><code>0.50</code></td><td><code>128</code></td></tr>
+  <tr><td><code>1023</code></td><td><code>1.00</code></td><td><code>255</code></td></tr>
+</table>
+
+<span class="key">Integer division bug: <code>potValue / potMax</code> drops the decimal. Fix: <code>(float)potValue / potMax</code></span>
+
+<!-- ══ 5. VARIABLES & STATE ════════════════════════════════════════════ -->
+<h2>5. Variables &amp; Stored State</h2>
+
+<table>
+  <tr><th>Type</th><th>Stores</th><th>Example</th></tr>
+  <tr><td><code>int</code></td><td>Whole numbers</td><td><code>int potValue = 512;</code></td></tr>
+  <tr><td><code>float</code></td><td>Decimal numbers</td><td><code>float potRatio = 0.5;</code></td></tr>
+  <tr><td><code>bool</code></td><td>true / false</td><td><code>bool ledEnabled = false;</code></td></tr>
+</table>
+
+<p><strong>State</strong> means the program remembers a mode or condition across loop cycles.</p>
+
+<div class="cols2">
+  <div class="card">
+    <h4>LED State Example</h4>
+    <pre><code><span class="kw">if</span> (buttonOnState == LOW)  ledEnabled = <span class="kw">true</span>;
+<span class="kw">if</span> (buttonOffState == LOW) ledEnabled = <span class="kw">false</span>;
+
+<span class="kw">if</span> (ledEnabled)
+  <span class="fn">analogWrite</span>(ledPin, ledValue);
+<span class="kw">else</span>
+  <span class="fn">analogWrite</span>(ledPin, <span class="nm">0</span>);</code></pre>
+  </div>
+  <div class="card">
+    <h4>Motor Direction Example</h4>
+    <pre><code><span class="kw">if</span> (forwardState == LOW) motorDirection = <span class="nm">1</span>;
+<span class="kw">if</span> (reverseState == LOW) motorDirection = <span class="nm">-1</span>;
+
+<span class="kw">if</span> (motorDirection == <span class="nm">1</span> && motorPWM > <span class="nm">0</span>)
+  <span class="cm">// run forward</span>
+<span class="kw">else if</span> (motorDirection == <span class="nm">-1</span> && motorPWM > <span class="nm">0</span>)
+  <span class="cm">// run reverse</span>
+<span class="kw">else</span>
+  <span class="cm">// stop</span></code></pre>
+  </div>
+</div>
+
+<span class="key">Button press updates the variable. The variable controls the output — even after the button is released.</span>
+
+<h3>Comparison &amp; Logic Operators</h3>
+<table>
+  <tr><th>Operator</th><th>Meaning</th><th>Operator</th><th>Meaning</th></tr>
+  <tr><td><code>==</code></td><td>Equal to</td><td><code>!=</code></td><td>Not equal to</td></tr>
+  <tr><td><code>&gt;</code></td><td>Greater than</td><td><code>&lt;</code></td><td>Less than</td></tr>
+  <tr><td><code>&amp;&amp;</code></td><td>AND (both must be true)</td><td></td><td></td></tr>
+</table>
+
+<!-- ══ 6. SERIAL MONITOR ══════════════════════════════════════════════ -->
+<h2>6. Serial Monitor &amp; Previous Values</h2>
+
+<pre><code><span class="cm">// Only print when the value changes</span>
+<span class="kw">if</span> (motorPWM != lastMotorPWM) {
+  <span class="fn">Serial.print</span>(<span class="nm">"Motor PWM: "</span>);
+  <span class="fn">Serial.println</span>(motorPWM);
+  lastMotorPWM = motorPWM;  <span class="cm">// save for next loop</span>
+}</code></pre>
+
+<span class="key">Current values = what is happening now. Previous values = detect what changed.</span>
+
+<!-- ══ 7. MOTOR DRIVERS ════════════════════════════════════════════════ -->
+<h2>7. Why Motors Need Drivers &amp; the L293D</h2>
+
+<div class="cols2">
+  <div class="card">
+    <h4>Why a Driver?</h4>
+    <ul>
+      <li>Motor needs more current than an Arduino pin can safely supply</li>
+      <li>Motors create voltage spikes</li>
+      <li>Motor may need a separate power source</li>
+      <li>Direction control requires a driver circuit</li>
+    </ul>
+    <p style="font-size:9pt;color:#c62828;font-weight:600;">Arduino pin = signal wire, not motor power wire.</p>
+  </div>
+  <div class="card">
+    <h4>L293D — Three Jobs</h4>
+    <table>
+      <tr><th>Job</th><th>Controlled By</th></tr>
+      <tr><td>Speed</td><td>Enable pin (PWM)</td></tr>
+      <tr><td>Direction</td><td>Input 1 + Input 2</td></tr>
+      <tr><td>Motor power</td><td>External supply (VCC2)</td></tr>
+    </table>
+  </div>
+</div>
+
+<h3>L293D Direction Inputs</h3>
+<table>
+  <tr><th>Input 1</th><th>Input 2</th><th>Motor</th></tr>
+  <tr><td><code>HIGH</code></td><td><code>LOW</code></td><td>Forward</td></tr>
+  <tr><td><code>LOW</code></td><td><code>HIGH</code></td><td>Reverse</td></tr>
+  <tr><td><code>LOW</code></td><td><code>LOW</code></td><td>Stopped / coast</td></tr>
+</table>
+
+<table>
+  <tr><th>L293D Power Pin</th><th>Job</th></tr>
+  <tr><td><code>VCC1</code></td><td>Logic power for the chip (from Arduino 5V)</td></tr>
+  <tr><td><code>VCC2</code></td><td>Motor power for the motor (from battery)</td></tr>
+  <tr><td><code>GND</code></td><td>Must be shared with Arduino GND and battery negative</td></tr>
+</table>
+
+<span class="key">Shared ground gives Arduino and driver the same electrical zero so HIGH/LOW mean the same thing to both.</span>
+
+<!-- ══ 8. PROGRAM PATTERN ══════════════════════════════════════════════ -->
+<h2>8. Program Structure Pattern</h2>
+
+<table>
+  <tr><th>Step</th><th>Job</th><th>Examples</th></tr>
+  <tr><td>READ</td><td>Get input values</td><td><code>digitalRead()</code>, <code>analogRead()</code></td></tr>
+  <tr><td>DECIDE / STATE</td><td>Update state variables</td><td><code>ledEnabled</code>, <code>motorDirection</code></td></tr>
+  <tr><td>ACT</td><td>Drive outputs</td><td><code>analogWrite()</code>, <code>digitalWrite()</code></td></tr>
+  <tr><td>REPORT</td><td>Print useful changes</td><td><code>Serial.println()</code></td></tr>
+  <tr><td>SAVE</td><td>Store previous values</td><td><code>lastMotorPWM = motorPWM;</code></td></tr>
+</table>
+
+<!-- ══ 9. PRACTICE ════════════════════════════════════════════════════ -->
+<h2>9. Practice Problems</h2>
+
+<div class="practice">
+  <strong>Q1.</strong> A potentiometer reads <code>512</code>. About what PWM value should that become?
+  <div class="answer">About 128 &nbsp;(512 / 1023 ≈ 0.5 → 0.5 × 255 ≈ 128)</div>
+</div>
+
+<div class="practice">
+  <strong>Q2.</strong> With <code>INPUT_PULLUP</code>, a button reads <code>LOW</code>. Is it pressed or released?
+  <div class="answer">Pressed — INPUT_PULLUP pulls the line HIGH when released, LOW when the button connects it to GND.</div>
+</div>
+
+<div class="practice">
+  <strong>Q3.</strong> What is the difference between <code>const int ledPin = 9;</code> and <code>pinMode(ledPin, OUTPUT);</code>?
+  <div class="answer">The first names pin 9. The second configures that pin as an output.</div>
+</div>
+
+<div class="practice">
+  <strong>Q4.</strong> The motor doesn't move, but the code uploads. What should you check first?
+  <div class="answer">Motor power (VCC2), shared ground, and L293D power connections.</div>
+</div>
+
+<div class="practice">
+  <strong>Q5.</strong> The motor only changes direction while the button is held. What is missing?
+  <div class="answer">Stored state — a variable like <code>motorDirection</code> should remember the last direction choice.</div>
+</div>
+
+<div class="practice">
+  <strong>Q6 (Code Bug).</strong> Why might <code>float potRatio = potValue / potMax;</code> give <code>0.00</code> instead of <code>0.50</code>?
+  <div class="answer">Both variables are <code>int</code>, so integer division drops the decimal before assigning to <code>potRatio</code>.
+    Fix: <code>float potRatio = (float)potValue / potMax;</code></div>
+</div>
+
+<div class="practice">
+  <strong>Q7 (Code Bug).</strong> A program prints <code>Motor PWM: 128</code> every loop even when the knob isn't moving. How do you fix it?
+  <div class="answer">Use a previous-value variable (<code>lastMotorPWM</code>). Only print when <code>motorPWM != lastMotorPWM</code>, then save <code>lastMotorPWM = motorPWM;</code></div>
+</div>
+
+<div class="practice">
+  <strong>Q8.</strong> If the forward and reverse buttons are pressed at the same time, what is stored in <code>motorDirection</code>?
+  <div class="answer"><code>-1</code> (reverse). The reverse check runs second and overwrites the forward value.</div>
+</div>
+
+<!-- ══ 10. WHAT TO KNOW ════════════════════════════════════════════════ -->
+<h2>10. What You Should Be Able to Explain</h2>
+
+<ul class="checklist">
+  <li>What <code>setup()</code> and <code>loop()</code> do</li>
+  <li>Why we name pins with constants</li>
+  <li>What <code>pinMode()</code> does</li>
+  <li>Why buttons use <code>INPUT_PULLUP</code></li>
+  <li>Why pressed = <code>LOW</code> with <code>INPUT_PULLUP</code></li>
+  <li><code>digitalRead()</code> vs <code>analogRead()</code></li>
+  <li><code>digitalWrite()</code> vs <code>analogWrite()</code></li>
+  <li>Why read = 0–1023, write = 0–255</li>
+  <li>How to scale pot value to PWM</li>
+  <li>The integer division bug and fix</li>
+  <li>What stored state allows a program to do</li>
+  <li>Why previous-value variables help Serial Monitor</li>
+  <li>Why LEDs can be direct but motors need drivers</li>
+  <li>What the L293D enable pin does (speed)</li>
+  <li>What the L293D input pins do (direction)</li>
+  <li>VCC1 (logic power) vs VCC2 (motor power)</li>
+  <li>Why Arduino GND and battery GND must be shared</li>
+  <li>How LED brightness and motor speed are similar</li>
+</ul>
+
+</body>
+</html>
